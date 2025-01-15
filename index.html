@@ -1,1 +1,75 @@
-<iframe src="menu.pdf#toolbar=0&navpanes=0&scrollbar=0" width="600" height="500"></iframe>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF.js Viewer</title>
+  <style>
+    /* Fullscreen setup */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #f0f0f0;
+    }
+
+    /* Center the canvas */
+    .pdf-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    canvas {
+      border: 1px solid #ccc;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+<div class="pdf-container">
+  <canvas id="pdf-canvas"></canvas>
+</div>
+
+<!-- PDF.js Library (via CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+
+<script>
+  // Path to your PDF file
+  const url = 'menu.pdf';
+
+  // Load PDF.js
+  const pdfjsLib = window['pdfjs-dist/build/pdf'];
+
+  // Set workerSrc to load the worker script
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+
+  // Load the PDF
+  pdfjsLib.getDocument(url).promise.then(pdf => {
+    // Get the first page
+    pdf.getPage(1).then(page => {
+      const scale = 1.5;  // Adjust scaling for zoom
+      const viewport = page.getViewport({ scale: scale });
+
+      // Prepare canvas using PDF page dimensions
+      const canvas = document.getElementById('pdf-canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      // Render the PDF page into the canvas context
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport
+      };
+      page.render(renderContext);
+    });
+  }).catch(error => {
+    console.error('Error loading PDF:', error);
+  });
+</script>
+
+</body>
+</html>
