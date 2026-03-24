@@ -3,19 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF.js Fullscreen Viewer</title>
-
+  <title>Garden of The Grounds Menu</title>
+  <link rel="icon" type="image/png" href="favicon.ico">
   <style>
-    /* Reset margins and padding */
     body, html {
       margin: 0;
       padding: 0;
       height: 100%;
-      overflow: hidden; /* Prevent scrollbars */
+      overflow: hidden;
       background-color: #f0f0f0;
     }
-
-    /* Container to center the canvas */
     .pdf-container {
       display: flex;
       justify-content: center;
@@ -24,8 +21,6 @@
       width: 100vw;
       overflow: hidden;
     }
-
-    /* Canvas styling */
     canvas {
       max-width: 100%;
       max-height: 100%;
@@ -34,55 +29,52 @@
     }
   </style>
 </head>
-
 <body>
 
-  <!-- PDF Display Area -->
-  <div class="pdf-container">
-    <canvas id="pdf-canvas"></canvas>
-  </div>
+<div class="pdf-container">
+  <canvas id="pdf-canvas"></canvas>
+</div>
 
-  <!-- PDF.js Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+<!-- PDF.js Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
 
-  <script>
-    const url = 'menu.pdf';  // Replace with your PDF file
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+<script>
+  const url = 'menu.pdf';  // PDF file in the same folder
+  const pdfjsLib = window['pdfjs-dist/build/pdf'];
 
-    let pdfDoc = null,
-        pageNum = 1,
-        scale = 1.5,  // Adjust zoom level here
-        canvas = document.getElementById('pdf-canvas'),
-        ctx = canvas.getContext('2d');
+  // Use local worker instead of CDN
+  pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.min.js';
 
-    // Render the page
-    function renderPage(num) {
-      pdfDoc.getPage(num).then(page => {
-        const viewport = page.getViewport({ scale: scale });
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+  let pdfDoc = null,
+      pageNum = 1,
+      scale = 1.5,
+      canvas = document.getElementById('pdf-canvas'),
+      ctx = canvas.getContext('2d');
 
-        const renderContext = {
-          canvasContext: ctx,
-          viewport: viewport
-        };
+  function renderPage(num) {
+    pdfDoc.getPage(num).then(page => {
+      const viewport = page.getViewport({ scale: scale });
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
 
-        page.render(renderContext);
-      });
-    }
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: viewport
+      };
 
-    // Load the PDF
-    pdfjsLib.getDocument(url).promise.then(pdfDoc_ => {
-      pdfDoc = pdfDoc_;
-      renderPage(pageNum);
+      page.render(renderContext);
     });
+  }
 
-    // Adjust canvas size on window resize
-    window.addEventListener('resize', () => {
-      renderPage(pageNum);
-    });
-  </script>
+  pdfjsLib.getDocument(url).promise.then(pdfDoc_ => {
+    pdfDoc = pdfDoc_;
+    renderPage(pageNum);
+  });
+
+  window.addEventListener('resize', () => {
+    renderPage(pageNum);
+  });
+</script>
 
 </body>
 </html>
