@@ -1,0 +1,7 @@
+services:
+  coffee-menu:
+    build: .
+    container_name: coffee-menu
+    restart: unless-stopped
+    ports:
+      - "8181:80"
